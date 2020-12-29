@@ -135,6 +135,9 @@ Y: BEST SOLUTION!
 ### Problem 1. POLY
 [Problem statement](https://nsucrypto.nsu.ru/archive/2020/round/2/task/1/#data)
 
+[./round2/writeup-1.pdf](./round2/writeup-1.pdf)
+
+
 ### Problem 2. Stairs-Box
 [Problem statement](https://nsucrypto.nsu.ru/archive/2020/round/2/task/2/#data)
 
@@ -143,8 +146,13 @@ No solution.
 > trupples: While we (but mostly Gabies) explored the subject, we could not find
 > any significant breakthrough.
 
+
 ### Problem 3. Hidden RSA
 [Problem statement](https://nsucrypto.nsu.ru/archive/2020/round/2/task/3/#data)
+
+[./round2/writeup-3.pdf](./round2/writeup-3.pdf)
+[./round2/rsa.py](./round2/rsa.py) - Requires yafu
+[./round2/rsa-hardcoded-pq.py](./round2/rsa-hardcoded-pq.py) - Does not require yafu
 
 ### Problem 4. Orthomorphisms
 [Problem statement](https://nsucrypto.nsu.ru/archive/2020/round/2/task/4/#data)
@@ -155,6 +163,10 @@ No solution.
 > least initially, very very very proud of!
 
 Graders' comment: Q1. Wrong answer. Q2. A partial solution. Note that \theta and \pi are permutations. You get relations such that \pi is a permutation but forget about conditions on \theta. So, you only get a partial solution. Therefore, your total number of solutions (including 36864 ) are wrong because you consider r1,r2,c1,c2,q1,q2,b1,b2 such that \theta is not a permutation.
+
+[./round2/writeup-4.pdf](./round2/writeup-4.pdf)
+
+[./round2/dihedral.py] - The beautiful yet wrong script that led us to wrong suppositions about the structure of orthomorphisms AAAAA
 
 ### Problem 5. JPEG Encoding
 [Problem statement](https://nsucrypto.nsu.ru/archive/2020/round/2/task/5/#data)
@@ -167,20 +179,38 @@ Graders' comment: The authors provide discussion how they improve the compressio
 
 > trupples: oops
 
+[./round2/writeup-5.pdf](./round2/writeup-5.pdf)
+
+[./round2/nsu-p5.py](./round2/nsu-p5.py) - Horribly messy script that benchmarks a handful of compression schemes
+
+
 ### Problem 6. Miller-Rabin Revisited
 [Problem statement](https://nsucrypto.nsu.ru/archive/2020/round/2/task/6/#data)
 
 Graders' comment: Q1 OK! Q2 Solved. Although not entirely accurate reasoning. But one can catch the right answer. Interesting handling of Carmichael numbers.
+
+[./round2/writeup-6.pdf](./round2/writeup-6.pdf)
+
+TODO @GabiTulba
+
 
 ### Problem 7. CPA Game
 [Problem statement](https://nsucrypto.nsu.ru/archive/2020/round/2/task/7/#data)
 
 Graders' comment: OK! (Note: the number of queries can be reduced).
 
+[./round2/writeup-7.pdf](./round2/writeup-7.pdf)
+
+[./round2/nsu-p7.py](./round2/nsu-p7.py) - Basically the same script as round 1. Turns out you can do it in less queries!
+
+
 ### Problem 8. Collisions
 [Problem statement](https://nsucrypto.nsu.ru/archive/2020/round/2/task/8/#data)
 
 Graders' comment: Correct solution for all 3 subproblems. Great presentation!
+
+[./round2/writeup-8.pdf](./round2/writeup-8.pdf)
+
 
 ### Problem 9. Bases
 [Problem statement](https://nsucrypto.nsu.ru/archive/2020/round/2/task/9/#data)
@@ -190,7 +220,15 @@ Graders' comment: Correct solution for all 3 subproblems. Great presentation!
 
 Graders' comment: No mathematical solution proposed by these authors, only a program that looks correct but is very basic. No result of the program is given. Note. The rating scale has been slightly revised.
 
+[./round2/writeup-9.pdf](./round2/writeup-9.pdf)
+
+[./round2/bases.py](./round2/bases.py) - Exploration attempts..
+
+
 ### Problem 10. AES-GCM
 [Problem statement](https://nsucrypto.nsu.ru/archive/2020/round/2/task/10/#data)
 
+[./round2/writeup-10.pdf](./round2/writeup-10.pdf)
+
 TODO @GabiTulba
+
