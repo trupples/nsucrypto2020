@@ -1,0 +1,78 @@
+%% Creator: Inkscape inkscape 0.92.4, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'cbc.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{819.53656535bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.64627489)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{cbc.pdf}}%
+    \put(0.408921,0.32199317){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.15819045\unitlength}\raggedright encrypt\end{minipage}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{cbc.pdf}}%
+    \put(0.44932989,0.57628188){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\large $m_2$\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{cbc.pdf}}%
+    \put(0.45693529,0.04732449){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\large $e_2$\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{cbc.pdf}}%
+    \put(0.65784284,0.32199317){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.15819045\unitlength}\raggedright encrypt\end{minipage}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{cbc.pdf}}%
+    \put(0.69825067,0.57628188){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\large $m_3$\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{cbc.pdf}}%
+    \put(0.70585583,0.04732449){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\large $e_3$\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=7]{cbc.pdf}}%
+    \put(0.1600004,0.32199317){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.15819045\unitlength}\raggedright encrypt\end{minipage}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=8]{cbc.pdf}}%
+    \put(0.20040834,0.57628188){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\large $m_1$\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=9]{cbc.pdf}}%
+    \put(0.20801355,0.04732449){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\large $e_1$\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=10]{cbc.pdf}}%
+    \put(0.06036871,0.44960931){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}IV\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=11]{cbc.pdf}}%
+  \end{picture}%
+\endgroup%

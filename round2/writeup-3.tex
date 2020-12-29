@@ -1,0 +1,146 @@
+\documentclass[11pt]{llncs}
+\usepackage[a4paper]{geometry}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage[dvipsnames]{xcolor}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=RoyalPurple,   
+    urlcolor=RoyalPurple
+}
+
+\title{NSUCRYPTO 2020: Hidden RSA}
+
+\author{
+	Ioan Dragomir\inst{1} \and
+	Gabriel Tulba-Lecu\inst{2} \and
+	Mircea-Costin Preoteasa\inst{3}
+}
+
+\institute{
+	\email{ioandr@gomir.pw} \textendash \ Technical University of Cluj-Napoca \and
+	\email{gabi\_tulba\_lecu@yahoo.com} \textendash \ Polytechnic Univeristy of Bucharest \and
+	\email{mircea\_costin84@yahoo.com} \textendash \ Polytechnic Univeristy of Bucharest
+}
+
+
+
+\begin{document}
+\let\oldaddcontentsline\addcontentsline
+\def\addcontentsline#1#2#3{}
+\maketitle
+\def\addcontentsline#1#2#3{\oldaddcontentsline{#1}{#2}{#3}}
+
+
+\let\oldnewpage\newpage
+\def\newpage{\hfill}
+\setcounter{tocdepth}{2}
+\tableofcontents
+\def\newpage{\oldnewpage}
+
+\section{Problem summary}
+
+Bob gives us an RSA encryption oracle. He keeps all the RSA parameters secret, even $e$ and $n$, which are normally public. The encryption oracle allows us to evaluate:
+\[ E(x) = x^e \mod n \]
+for any $x \in [0, 10^{70}) \cap \mathbb{N}$. Given
+\small \[ E(m) = 71511896681324833458361392885184344933333159830863878600189212073777582178173 \]
+\normalsize we are supposed to find $m$.
+
+\newpage
+\section{Solution}
+\subsection{Recovering $n$}
+We notice the magnitude of most outputs to be around $2^{255}$. This indicates that n  is likely 256 bits long, which is a conventional value, but very low for today's security standards. As a first step, we use the property that RSA is homomorphic under multiplication:
+\[ E(a) \cdot E(b) \equiv E(a \cdot b) \mod n \]
+to obtain a system of equations of the form
+\[ \begin{cases}
+E(a_1) \cdot E(b_1) - E(a_1 \cdot b_1) = n \cdot k_1\\
+E(a_2) \cdot E(b_2) - E(a_2 \cdot b_2) = n \cdot k_2\\
+\cdots
+\end{cases} \]
+where all values in the left hand side are known by use of the oracle. We can calculate the right hand side values which are all multiples of $n$, and then recover $n$ itself by taking their GCD: \[ n = \gcd(n \cdot k_1, n \cdot k_2, \dots) \]
+For instance, we can use the oracle to get the following values: \small
+\[ \begin{aligned}
+E(2)=50154912289039335014669339773308393642658123228965873078737860474494117389068 \\
+E(3)=74177167678866806519929337366689313939300015489238864541679630476008627210599 \\
+E(4)=34176590322694690833975364940063423615063159848675783675025873390206977645476 \\
+E(6)=69732835711852253044075185248502970714729629373386336194927784886349053828079
+\end{aligned} \]
+\normalsize and then use these to get the value of $n$.
+\[ n = \gcd(E(2)\cdot E(2)-E(4), E(2)\cdot E(3)-E(6)) \]
+\small
+\[ n = 76200708443433250012501342992033571586971760218934756930058661627867825188509 \]
+\normalsize
+In this case, two terms were enough to reach the actual 256-bit value of n. If we would have gotten a larger $n$ than expected, it would have required us to compute more $E(a),E(b),E(ab)$ pairs.
+
+\subsection{Finding e}
+Another important variable we have to find is $e$. In practice, this takes one of a few conventional values, especially including the Fermat Primes 3, 17, 65537. In this case, we are lucky and it is a common value. We can verify $e=65537$ checks out:
+\[ 2^{65537} \equiv 5015491 \dots 7389068 = E(2) \mod n \]
+
+\subsection{RSA internals}
+The strength of RSA stands in the fact that an attacker cannot feasibly factor $n$, which is semiprime, into the primes $p$, $q$. If one were able to do that, though, they would be able to calculate Euler's totient of $n$, then the decryption exponent $d$, and then use $d$ and $n$ to decrypt any message:
+\[ \varphi(n) = \text{lcm}(p-1, q-1) \]
+\[ ed \equiv 1 \mod \varphi(n) \]
+\[ d \equiv e^{-1} \mod \varphi(n) \]
+\[ E(m)^d \equiv (m^e)^d \equiv m^{ed} \equiv m \mod n \]
+
+\subsection{Factoring $n$}
+As $n$ is only 256 bits long, publicly available software such as \href{https://sourceforge.net/projects/yafu/}{YAFU} or \href{https://pari.math.u-bordeaux.fr/}{PARI/GP} can factor it in a matter of minutes. Also, the organisers seem to have submitted \href{http://factordb.com/index.php?query=76200708443433250012501342992033571586971760218934756930058661627867825188509}{the factorisation of $n$ on factordb.com} one hour before the second round started. Using either of these methods we obtain
+\[ \begin{aligned}
+p = 232086664036792751646261018215123451301\\
+q = 328328681700354546732404725320581286809
+\end{aligned} \]
+and use the previous formulas to obtain \small 
+\[ d = 890928679139733704961764408923901372172783206571672007877608020604688760473 \]
+\normalsize
+
+\subsection{Decrypting the message}
+We finally have all the pieces of the puzzle, so we can decrypt the given message.
+\[ \begin{aligned}
+m \equiv E(m)^d \mod n \\
+m = 202010181600
+\end{aligned} \]
+
+And it looks like the timestamp 2020-10-18 16:00, which is a day before the start of the round. A plaintext which makes sense is always a good sign that our logic checks out. We can even verify that when put through the encryption oracle, 202010181600 gives the same encrypted value as the one in the problem statement.
+
+\newpage
+\appendix
+\section{Python code (requires yafu)}
+
+\scriptsize
+\begin{lstlisting}[basicstyle=\ttfamily,language=Python,showstringspaces=false]
+import subprocess, re
+from fractions import gcd
+from Crypto.Util.number import inverse
+
+Em = 71511896681324833458361392885184344933333159830863878600189212073777582178173
+E2 = 50154912289039335014669339773308393642658123228965873078737860474494117389068
+E3 = 74177167678866806519929337366689313939300015489238864541679630476008627210599
+E4 = 34176590322694690833975364940063423615063159848675783675025873390206977645476
+E6 = 69732835711852253044075185248502970714729629373386336194927784886349053828079
+
+n = gcd(E2*E2 - E4, E2*E3 - E6)
+print(f"n = {n}")
+
+e = 65537
+assert pow(2, e, n) == E2
+
+yafu_outp = subprocess.check_output(["./yafu-x64.exe", f"factor({n})"])
+p, q = [int(x) for x in re.findall(r'P\d+ = (\d+)', yafu_outp.decode())]
+
+print(f"p = {p}")
+print(f"q = {q}")
+
+assert p*q == n
+
+L = (p-1)*(q-1)//gcd(p-1, q-1)
+d = inverse(e, L)
+print(f"d = {d}")
+
+m = pow(Em, d, n)
+print(f"m = {m}")
+\end{lstlisting}
+\normalsize
+
+\end{document}

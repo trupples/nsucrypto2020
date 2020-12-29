@@ -1,0 +1,58 @@
+\documentclass[11pt]{llncs}
+\usepackage[a4paper]{geometry}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage[dvipsnames]{xcolor}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=RoyalPurple,   
+    urlcolor=RoyalPurple
+}
+
+\title{NSUCRYPTO 2020: POLY}
+
+\author{
+	Ioan Dragomir\inst{1} \and
+	Gabriel Tulba-Lecu\inst{2} \and
+	Mircea-Costin Preoteasa\inst{3}
+}
+
+\institute{
+	\email{ioandr@gomir.pw} \textendash \ Technical University of Cluj-Napoca \and
+	\email{gabi\_tulba\_lecu@yahoo.com} \textendash \ Polytechnic Univeristy of Bucharest \and
+	\email{mircea\_costin84@yahoo.com} \textendash \ Polytechnic Univeristy of Bucharest
+}
+
+\begin{document}
+\let\oldaddcontentsline\addcontentsline
+\def\addcontentsline#1#2#3{}
+\maketitle
+\def\addcontentsline#1#2#3{\oldaddcontentsline{#1}{#2}{#3}}
+
+
+\let\oldnewpage\newpage
+\def\newpage{\hfill}
+\setcounter{tocdepth}{2}
+\tableofcontents
+\def\newpage{\oldnewpage}
+
+\section{Problem summary}
+
+Let $f$ be a polynomial of degree $n$ in $\mathbb{Z}$: $f(x) = a_0 + a_1x + a_2x^2 + \dots + a_nx^n$\\
+Bob claims $f(20) = 7$ and $f(15) = 5$.\\
+Prove that this is impossible.
+
+\section{Solution}
+
+\begin{align*}
+      f(20) &= a_0 + a_1 \cdot 20 + a_2 \cdot 20^2 + \dots + a_n \cdot 20^n = 7 \\
+      f(15) &= a_0 + a_1 \cdot 15 + a_2 \cdot 15^2 + \dots + a_n \cdot 15^n = 5 \\
+f(20)-f(15) &= 0 + a_1 \cdot (20-15) + a_2 \cdot (20^2-15^2) + \dots + a_n \cdot (20^n-15^n) = 7-5\\
+            &= 5(a_1 + 35a_2 + \dots + (4\cdot 20^{n-1}-3\cdot 15^{n-1}) \cdot a_n) = 2
+\end{align*}
+
+In $\mathbb{Z}$, there is no solution to $5x=2$, therefore such a polynomial cannot exist.
+
+\end{document}

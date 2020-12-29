@@ -1,0 +1,203 @@
+\documentclass[11pt]{llncs}
+\usepackage[a4paper]{geometry}
+\usepackage{listings}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage[dvipsnames]{xcolor}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=RoyalPurple,
+    citecolor=black,   
+    urlcolor=RoyalPurple
+}
+
+\title{NSUCRYPTO 2020: Miller--Rabin revisited}
+\author{
+	Ioan Dragomir\inst{1} \and
+	Gabriel Tulba-Lecu\inst{2} \and
+	Mircea-Costin Preoteasa\inst{3}
+}
+
+\institute{
+	\email{ioandr@gomir.pw} \textendash \ Technical University of Cluj-Napoca \and
+	\email{gabi\_tulba\_lecu@yahoo.com} \textendash \ Polytechnic Univeristy of Bucharest \and
+	\email{mircea\_costin84@yahoo.com} \textendash \ Polytechnic Univeristy of Bucharest
+}
+
+
+\newtheorem{observation}[theorem]{Observation}
+
+\begin{document}
+\let\oldaddcontentsline\addcontentsline
+\def\addcontentsline#1#2#3{}
+\maketitle
+\def\addcontentsline#1#2#3{\oldaddcontentsline{#1}{#2}{#3}}
+
+
+\let\oldnewpage\newpage
+\def\newpage{\hfill}
+\setcounter{tocdepth}{3}
+\tableofcontents
+\def\newpage{\oldnewpage}
+
+\section{Problem summary}
+
+Bob tries to improve a well known probabilistic primality test -- Miller-Rabin. The following modified version of the test is proposed: \\ \\
+Let $n$ be the odd number to be tested, we will write it in the form $n - 1 = 2^k3^lm$, where $m$ is not divisible by 2 or 3. 
+
+\[ \begin{aligned}
+& \textbf{1.}\ \text{Select a random integer } x \in \{2,\dots,n-2\} \\
+& \textbf{2.}\ a \leftarrow x^m \text{ mod } n \\
+& \textbf{3.}\ \text{If } a \equiv 1 \text{ (mod n)} \text{ then return "\textbf{probably prime}"}\\
+& \textbf{4.}\ \text{For } i = 0,1,\dots,l-1 \text{ do:}\\
+& \quad \quad \text{If } a+a^2 \equiv - 1 \text{ (mod n) then return "\textbf{probably prime}"} \\
+& \quad \quad a \leftarrow a^3 \text{ (mod n)} \\
+& \textbf{5.}\ \text{For } i = 0,1,\dots,k-1 \text{ do:}\\
+& \quad \quad \text{If } a \equiv - 1 \text{ (mod n) then return "\textbf{probably prime}"} \\
+& \quad \quad a \leftarrow a^2 \text{ (mod n)} \\
+& \textbf{6.}\ \text{ return "\textbf{composite}"}
+\end{aligned} \]
+
+\newpage
+\paragraph{\textbf{Question 1.}} Prove the correctness of the test above (i.e. for any prime number $n$ it will never return "\textbf{composite}").
+\paragraph{\textbf{Question 2.}} Does the error probability of falsely classifying a "\textbf{composite}" number $n$ as "\textbf{probably prime}" improve when we switch from the original test, (\textbf{OT}) which has an upper bound on the error probability of $\frac{1}{4}$ \cite{rabin}, to the modified test (\textbf{MT})?
+
+\section{Problem solution}
+
+\subsection{Presenting the original algorithm}
+We will keep referencing the \textbf{OT} in this section, so having its pseudocode written here will come in handy: \\ \\
+Let $n$ be the odd number to be tested, we will write it in the form $n - 1 = 2^kd$, where $d$ is odd. 
+
+\[ \begin{aligned}
+& \textbf{1.}\ \text{Select a random integer } x \in \{2,\dots,n-2\} \\
+& \textbf{2.}\ a \leftarrow x^d \text{ mod } n \\
+& \textbf{3.}\ \text{If } a \equiv 1 \text{ (mod n)} \text{ then return "\textbf{probably prime}"}\\
+& \textbf{4.}\ \text{For } i = 0,1,\dots,k-1 \text{ do:}\\
+& \quad \quad \text{If } a \equiv - 1 \text{ (mod n) then return "\textbf{probably prime}"} \\
+& \quad \quad a \leftarrow a^2 \text{ (mod n)} \\
+& \textbf{5.}\ \text{ return "\textbf{composite}"}
+\end{aligned} \]
+
+\subsection{Solving Question 1}
+We will execute the algorithm in reverse and prove that if $n$ is prime, then the program will return "\textbf{probably prime}".
+
+The proof is based on Fermat's little theorem: Let $n$ be a prime number, and $x$ s.t. $\gcd(n, x) = 1$, then $x^{n-1} \equiv 1$ (mod n).
+
+Since $n-1 = 2^k3^lm$, then $\dfrac{n-1}{2^i3^j} \in \mathbb{Z}\quad \forall\ 1 \leq i \leq k,\ 0 \leq j \leq l$. From these statements, we get the following result:
+\[ \begin{aligned}
+& x^{n-1} \equiv 1 \text{ (mod n)} \implies \\
+& x^{n-1} -1 \equiv 0 \text{ (mod n)} \implies \\
+& (x^{\frac{n-1}{2}} -1)(x^{\frac{n-1}{2}} +1) \equiv 0 \text{ (mod n)} \implies \\
+& x^{\frac{n-1}{2}} \equiv \pm 1 \text{ (mod n)}
+\end{aligned} \]
+
+If $x^\frac{n-1}{2} \equiv -1$ (mod n), then the \textbf{MT} returns at the last step of loop \textbf{5} and we're done. Otherwise $x^\frac{n-1}{2} \equiv 1$ (mod n) and we must go one step backwards in the algorithm. If $k \geq 2$ we remain in the body of loop \textbf{5}, otherwise we move to loop \textbf{4}. If we remain in loop \textbf{5}, we can repeat this technique: $x^\frac{n-1}{2} \equiv 1 \text{ (mod n)} \implies x^\frac{n-1}{2^2} \equiv \pm 1 \text{ (mod n)}$. This process repeats until we either find $1 \leq i \leq l$ s.t. $x^\frac{n}{2^i} \equiv -1$ (mod n) or we exit loop \textbf{5}, and move backwards to loop \textbf{4}.
+
+The same idea can be applied to loop \textbf{4}. If $l \geq 1 \text{ and } x^\frac{n-1}{2^k} \equiv 1$ (mod n). For simplicity we'll note $n' = \frac{n-1}{2^k}$:
+
+\[ \begin{aligned}
+& x^{n'} \equiv 1 \text{ (mod n)} \implies \\
+& x^{n'} -1 \equiv 0 \text{ (mod n)} \implies \\
+& (x^\frac{n'}{3} -1)((x^\frac{n'}{3})^2 + x^\frac{n'}{3} + 1) \equiv 0 \text{ (mod n)} \implies \\
+& x^\frac{n'}{3} \equiv 1 \text{ (mod n) or } (x^\frac{n'}{3})^2 + x^\frac{n'}{3} = -1 \text{ (mod n)}
+\end{aligned} \]
+
+Like before, if $(x^\frac{n'}{3})^2 + x^\frac{n'}{3} = -1 \text{ (mod n)}$, then the \textbf{MT} returns at the last step of loop \textbf{4} and we have again finished. Otherwise $x^\frac{n'}{3} \equiv 1$ (mod n) and we must go another step backwards. This will repeat until we either find $1 \leq j \leq l$ s.t. $x^\frac{n'}{3^j} \equiv -1$ (mod n) or we reach the first step of the algorithm. At the first step we have: \\
+\[x^\frac{n'}{3^l} \equiv 1\text{ (mod n) }\iff x^\frac{n-1}{2^k3^l} \equiv 1\text{ (mod n) }\iff x^m \equiv 1\text{ (mod n)}\]
+
+Therefore, if we reach the second step of the algorithm going backwards, it will always return "\textbf{probably prime}". Thus, if $n$ is prime the \textbf{MT} must return "\textbf{probably prime}" at some point in its execution, so we have proved the correctness of the algorithm.
+
+\subsection{Solving Question 2}
+In \cite{rabin}, M. Rabin proves that the upper bound for the error probability of falsely classifying a "\textbf{composite}" number $n$ as "\textbf{probably prime}" is $\frac{1}{4}$.
+
+This upper bound is achieved for a special class of Carmichael numbers $n = p\cdot q\cdot r$, where $p, q, r$ are prime numbers and $p \equiv q \equiv r \equiv -1$ (mod 4). If there is a number $n$ s.t. $n-1 \not\equiv 0$ (mod 3), then $n - 1 = 2^km$, and so loop \textbf{4} will have no iterations, meaning \textbf{MT} is reduced to \textbf{OT}, so the upper bound for the error probability of \textbf{MT} equals the upper bound for the error probability of \textbf{OT}, which is $\frac{1}{4}$.
+
+In order to find such a number, we wrote a program which found a bunch of them: $10546629279551, 19177682527151, 22799069430611, 52305745012067 $ etc. 
+
+Therefore, we can say that the result M. Rabin obtained is not improved by this modification.
+
+\newpage
+\subsection{Bonus result}
+As a bonus answer for \textbf{Question 2}, we also found that other Carmichael numbers of the type above have different lower bounds if they are divisible by 3. The experimental result we obtained is that if $n$ is a Carmichael number of the type above and $n-1 = 2^k3^lm$, for m not divisible by 2 and 3, then the upper bound for the error probability of \textbf{MT} is:
+
+\[\frac{1}{4}\cdot (1 - \frac{1}{3} - \\
+\frac{1}{3^2} - \dots - \frac{1}{3^l}) = \frac{1}{4}\cdot (1 - \frac{3^l - 1}{2\cdot 3^l}) = \frac{3^l+1}{8\cdot3^l}\]
+
+\appendix
+\section{Code for searching special Carmichael numbers}
+\scriptsize
+\begin{lstlisting}[basicstyle=\ttfamily,language=Python,showstringspaces=false]
+from fractions import gcd
+# http://oeis.org/A002997 for p, q, r = -1 (mod 4)
+w = [8911, 1024651, 1152271, 5481451, 10267951, ...]
+
+
+def is_witness_orig(p2, d, a, n):
+    x = pow(a, d, n)
+    if x == 1: return False
+    for i in range(p2):
+        if (x+1)%n == 0: return False
+        x = x * x % n
+    return True
+
+def is_witness_mod(p2, p3, d, a, n):
+    x = pow(a, d, n)
+    if x == 1: return False
+    for i in range(p3):
+        y = pow(x, 2, n)
+        if (x + y + 1) % n == 0:
+            return False
+        x = x * y % n
+    for i in range(p2):
+        if x == n-1: return False
+        x = x * x % n
+    return True
+
+def get_p2_p3_m(n):
+    p2 = 0
+    p3 = 0
+    x = n-1
+    while x % 2 == 0:
+        x //=2
+        p2+=1
+    while x%3 == 0:
+        x //=3
+        p3+=1
+    
+    return (p2, p3, x)
+
+def count_bad_witnesses(n):
+    p2, p3, d = get_p2_p3_m(n)
+    cnt_mod = 0
+    cnt_org = 0
+    total = 0
+    for a in range(2, n):
+        if(a % 5000000 == 0): # early stop to get an approximation
+            return cnt_mod, cnt_org, total
+        if(gcd(a, n) != 1):
+            continue
+        total+=1
+        if not is_witness_mod(p2, p3, d, a, n):
+            cnt_mod += 1
+        if not is_witness_orig(p2, d * 3**p3, a, n):
+            cnt_org += 1
+
+    return (cnt_mod, cnt_org, total)
+
+for i in w:
+    ce, co, t = count_bad_witnesses(i)
+    if ce == i-2 and co == i-2: continue
+    print("i:", i, "total:", t, "mod:", ce, "orig:", co, 100 * ce/t, 100 * co/t)
+\end{lstlisting}
+\normalsize
+\medskip
+\begin{thebibliography}{9}
+\bibitem{rabin} 
+Michael O. Rabin
+\textit{Probabilistic Algorithm for Testing Primality}.
+Institute of Mathematics, Hebrew University, Jerusalem, Israel, and Massachusetts Institute of Technology, Cambridge, Massachusetts 02139.
+\end{thebibliography}
+
+\end{document}

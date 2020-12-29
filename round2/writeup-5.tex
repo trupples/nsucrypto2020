@@ -1,0 +1,165 @@
+\documentclass[11pt]{llncs}
+\usepackage[a4paper]{geometry}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage[dvipsnames]{xcolor}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=RoyalPurple,   
+    urlcolor=RoyalPurple
+}
+
+\title{NSUCRYPTO 2020: JPEG Compression}
+\author{
+	Ioan Dragomir\inst{1} \and
+	Gabriel Tulba-Lecu\inst{2} \and
+	Mircea-Costin Preoteasa\inst{3}
+}
+
+\institute{
+	\email{ioandr@gomir.pw} \textendash \ Technical University of Cluj-Napoca \and
+	\email{gabi\_tulba\_lecu@yahoo.com} \textendash \ Polytechnic Univeristy of Bucharest \and
+	\email{mircea\_costin84@yahoo.com} \textendash \ Polytechnic Univeristy of Bucharest
+}
+
+
+\begin{document}
+\let\oldaddcontentsline\addcontentsline
+\def\addcontentsline#1#2#3{}
+\maketitle
+\def\addcontentsline#1#2#3{\oldaddcontentsline{#1}{#2}{#3}}
+
+
+\let\oldnewpage\newpage
+\def\newpage{\hfill}
+\setcounter{tocdepth}{3}
+\tableofcontents
+\def\newpage{\oldnewpage}
+
+\section{Problem summary}
+
+An important part of the JPEG image format is the compression. Each 8x8 block of pixels is converted to as short a bit string as possible, by computing its Discrete Cosine Transform, quantizing it, and then efficiently encoding the quantized matrix, using the property that most non-zero data is accumulated in the top left corner, corresponding to lower spacial frequencies. For example, here are some of the quantized matrices in the input set:
+\[ \left[ \begin{array}{rrrrrrrr}
+127 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0
+\end{array} \right]; \left[ \begin{array}{rrrrrrrr}
+9 & -5 & -2 & -1 & -3 & 1 & \hphantom{-}0 & \hphantom{-}0 \\
+-2 & 5 & 4 & 0 & -1 & -1 & 0 & 1 \\
+3 & 1 & 6 & 2 & 3 & 2 & 1 & 0 \\
+1 & -2 & 1 & 0 & -1 & 0 & 0 & 0 \\
+-2 & 0 & -1 & 1 & 0 & 0 & 0 & 0 \\
+1 & 0 & -1 & 0 & 0 & 0 & 0 & 0 \\
+0 & -1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0  
+\end{array} \right]; \left[ \begin{array}{rrrrrrrr}
+-55 & -18 & 6 & -3 & \hphantom{-}0 & 0 & \hphantom{-}0 & \hphantom{-}0 \\
+-3 & 8 & -2 & -3 & 1 & -1 & 1 & 0 \\
+2 & 1 & 1 & -3 & 0 & 0 & 0 & 0 \\
+0 & 4 & -4 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & -1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 
+\end{array} \right] \]
+
+Notice the greatest values appear in the top left corner, and the bottom right corner rarely contains anything but zeros. Most compression schemes, then, use this property to their advantage, rearranging the matrix to a vector by starting in that corner and zig-zagging their way starting through the top-left triangle, in such a way that the vector will usually end in a long string of zeros, which can be easily reduced.
+
+\paragraph{\textbf{Question:}} Propose an alternative algorithm to compress and decompress such matrices. It will be graded on how it performs given a predefined list of 108216 matrices.
+
+\section{Minimal output size, extreme Kolmogorov complexity}
+
+We present a construction which obtains the lowest possible size for the output, but is impractical for use as an actual compression algorithm because it requires storing the expected data set, or at least a slightly condensed version, as part of the algorithm. Thus its Kolmogorov complexity scales with the size of the data set, and it cannot be effectively used generally, as the possible matrix set needs to be known in advance.
+
+Briefly, our construction assigns each unique matrix in the input set a different symbol, and uses Huffman coding to generate an encoding which maps short bit strings to matrices which appear often, (such as matrices corresponding to monochrome blocks, which have a single nonzero value in the top-left corner) at the expense of inefficiently encoding matrices which only appear a handful of times in the whole data set.
+
+The implementation is trivial, and it manages to encode all 108216 matrices to a remarkable 1648250 bits ($\approx 201\text{kb}$), for an average of 15.23 bits per matrix. As expected, the most common matrices (such as $[127, 0, 0, \dots, 0]$, which appears 2544 times) have short encodings (in our implementation, $01001$), whereas the matrices which only appear once get longer encodings. (e.g. $[79, -1, 0, 0, 0, 0, 0, 0, 1, 0, \dots, 0] \rightarrow 01011110000100010$) 
+
+By the nature of Huffman coding, this is an optimal solution for the given data set. Also, we cannot divide the input data in any other way than matrix-wise, as that would break the requirement that we be able to reverse some bit string to a exactly a matrix.
+
+\subsection{Comparing Exp-Golomb to the optimal coding}
+The task authors gave an example of such a compression algorithm -- the Exp-Golomb code. We will compare its performance to the optimal coding we devised earlier.
+
+It manages to compress the entire matrix list to 6618432 bits, which gives an average of 61.15 bits per matrix. Longer encodings do indeed correspond to rare matrices, e.g.:
+\small \[ \begin{array}{c}
+\texttt{10100111111110100011111111010001111111100000101111100011110111111100110011}\\
+\texttt{11101000111110001111110011111101101111010001101111110100111101011111001101}\\
+\texttt{11010111110001011110010001111011011111010011101011101001110000111100010100}\\
+\texttt{11011110000100010011001100010001011100010000001000101001011010100000100}\\\\
+\text{corresponds to} \\\\
+\left[ \begin{array}{rrrrrrrr}
+ 71 &  17 & -28 &  17 & -14 &  5 & -2 & \hphantom{-}0 \\
+-69 &   3 & -11 &   5 & -10 &  3 & -1 & 0 \\
+-11 & -15 &   9 & -12 &  -1 &  0 &  0 & 0 \\
+  6 &   3 &   0 & -10 &  -1 &  0 & -1 & 0 \\
+  8 &  13 &  -4 &  -3 &  -1 &  0 & -1 & 0 \\
+  9 &   4 &  -1 &  -2 &   1 &  0 &  0 & 0 \\
+  2 &   0 &   1 &   0 &   1 & -1 &  0 & 0 \\
+ -1 &   0 &   0 &   1 &   0 &  0 &  0 & 0 \\
+\end{array} \right]
+\end{array} \] \normalsize
+
+But the shortest encountered encoding \texttt{00000111001} corresponds to the matrix $(-3, 0, \dots, 0)$, which only appears once in the data set. The most common matrix, $(127, 0, \dots, 0)$, is encoded as \texttt{0000011111111011111111}, which is rather long.
+
+\section{Proposed encoding}
+
+\subsection{Zig-zag order alternatives}
+
+While the zig-zag order makes intuitive and practical sense, we can obtain slightly better results by counting, for each position, how many input matrices have a nonzero element there, and using these values to infer a better matrix linearisation order:
+
+\[ \left[ \begin{array}{rrrrrrrr}
+\hspace{3pt} 0\hspace{3pt} & \hspace{3pt} 2\hspace{3pt} & \hspace{3pt} 3\hspace{3pt} & \hspace{3pt} 9\hspace{3pt} & \hspace{3pt}18\hspace{3pt} & \hspace{3pt}24\hspace{3pt} & \hspace{3pt}30\hspace{3pt} & \hspace{3pt}39\hspace{3pt} \\
+\hspace{3pt} 1\hspace{3pt} & \hspace{3pt} 4\hspace{3pt} & \hspace{3pt} 8\hspace{3pt} & \hspace{3pt}13\hspace{3pt} & \hspace{3pt}19\hspace{3pt} & \hspace{3pt}28\hspace{3pt} & \hspace{3pt}33\hspace{3pt} & \hspace{3pt}35\hspace{3pt} \\
+\hspace{3pt} 5\hspace{3pt} & \hspace{3pt} 7\hspace{3pt} & \hspace{3pt}10\hspace{3pt} & \hspace{3pt}17\hspace{3pt} & \hspace{3pt}23\hspace{3pt} & \hspace{3pt}31\hspace{3pt} & \hspace{3pt}40\hspace{3pt} & \hspace{3pt}38\hspace{3pt} \\
+\hspace{3pt} 6\hspace{3pt} & \hspace{3pt}11\hspace{3pt} & \hspace{3pt}14\hspace{3pt} & \hspace{3pt}20\hspace{3pt} & \hspace{3pt}26\hspace{3pt} & \hspace{3pt}42\hspace{3pt} & \hspace{3pt}46\hspace{3pt} & \hspace{3pt}48\hspace{3pt} \\
+\hspace{3pt}12\hspace{3pt} & \hspace{3pt}15\hspace{3pt} & \hspace{3pt}21\hspace{3pt} & \hspace{3pt}27\hspace{3pt} & \hspace{3pt}36\hspace{3pt} & \hspace{3pt}50\hspace{3pt} & \hspace{3pt}54\hspace{3pt} & \hspace{3pt}44\hspace{3pt} \\
+\hspace{3pt}16\hspace{3pt} & \hspace{3pt}22\hspace{3pt} & \hspace{3pt}29\hspace{3pt} & \hspace{3pt}34\hspace{3pt} & \hspace{3pt}43\hspace{3pt} & \hspace{3pt}53\hspace{3pt} & \hspace{3pt}59\hspace{3pt} & \hspace{3pt}55\hspace{3pt} \\
+\hspace{3pt}25\hspace{3pt} & \hspace{3pt}32\hspace{3pt} & \hspace{3pt}41\hspace{3pt} & \hspace{3pt}47\hspace{3pt} & \hspace{3pt}51\hspace{3pt} & \hspace{3pt}57\hspace{3pt} & \hspace{3pt}60\hspace{3pt} & \hspace{3pt}61\hspace{3pt} \\
+\hspace{3pt}37\hspace{3pt} & \hspace{3pt}45\hspace{3pt} & \hspace{3pt}49\hspace{3pt} & \hspace{3pt}52\hspace{3pt} & \hspace{3pt}56\hspace{3pt} & \hspace{3pt}58\hspace{3pt} & \hspace{3pt}62\hspace{3pt} & \hspace{3pt}63\hspace{3pt} \\
+\end{array} \right] \]
+
+If we change the order but keep the exp-Golomb encoding, we reduce the total size by 1.24\%, which isn't a remarkable improvement by itself, but it is a sign we're heading in the right direction.
+
+\subsection{Distinction between the first element and the rest}
+
+If we measure the frequencies of each value for each position, we notice the top-left element is significantly different from all the rest. Intuitively, it represents the average intensity over the 8x8 block, so we can expect there to be a great amount of variance. On the other hand, the other spatial frequencies follow a rather regular pattern of the values being, from most common to least, $0, 1, -1, 2, -2, 3, -3, \dots$ with their relative frequencies following a seemingly exponentially decreasing trend (e.g. for the second element, $p(x)\approx e ^{-0.2|x|-0.6}$). 
+
+\subsection{Compression scheme}
+
+We will use Huffman coding for the predictable elements. The constructed tree has the great property that zero elements get mapped to a single bit, because they are more common than all other values combined.
+
+\paragraph{Top-left element encoding.} The first element can either be encoded as a raw 8-bit value, in the idea that its high variability won't lead to great compression, or we can also use Huffman coding to try to reduce its size as much as possible. We will compare the output size for each method, using the given matrix list as a representative sample to build the Huffman tree.
+
+Storing the value as 8 uncompressed bits would lead to $8 \cdot 108216 = 865728$ bits added in total. Using a compressed coding, however, we get 843018 bits, for an average of 0.2 bits less per matrix. While it is an improvement, it is marginal, and for the sake of generality and simplicity, we will not do any compression on the top-left element.
+
+Thus, we will compress elements in the order deduced in the last part, where the first element is encoded as an 8 bit two's complement value, and the rest use a predefined Huffman tree. For now, we will also use a 6 bit prefix for the number of nonzero elements.
+
+With this method, we compress the matrices to 6013327 bits for 55.56 bits per matrix. This is already better than Exp-Golomb, but not by much. The shortest encodings are always 14 bytes long (6 for the length, 8 for the top-left element), and the longest encoding is shorter than Exp-Golomb's as well, but only by 3 bits.
+
+\subsection{Attempting to rethink sparsity}
+
+In the current algorithm, all encodings start with 6 bits for the "number of nonzero elements", even though many times this value is very small. We will attempt two solutions to this problem. We thought this would improve performance, but we were wrong. Nevertheless, here are our attempts.
+
+\paragraph{1. Exp-Golomb for the length.} First, we tried using the Exp-Golomb code without the sign bit to store the length. Small values, which appear often, will get reduced to a couple of bits, and we only get larger strings for $n>14$, which accounts for 17.7\% of matrices. Unfortunately, this method leads to longer compressed data, with an avg. of 56.08 bits/matrix.
+
+\paragraph{2. Partitioning the array.} Another attempt bypasses the need for a length field completely. We will split the 63 elements (we skip over the first one) in two halves, such that there is an equal probability that each of the halves is full of zeros. We can then recursively split each half further. We will encode any empty half as a zero bit, and any half with at least one nonzero element with a one bit, followed by its contents, which may either be encoded elements, or two such "halves".
+
+For example, if we split the data in quarters, and the first and third quarters contain the encoded blocks $A$ and $B$, the matrix encoding will look like \texttt{11A010B}. The first 1 means we divide the whole matrix in half, the second one divides the first half further, then $A$ is the encoding of the first quarter, 0 is the encoding of the second quarter. We then step one level higher and the next 1 divides the second half into quarters, the first of which has encoding 0 "empty", and the second encoding B.
+
+We thought it was is inefficient to split the arrays at the halfway point based on their length, so we will search for a better splitting point so as to balance the cases in which each half is full of empty elements. In this way, given the input data, we will make the first split at position 36, its left half will be split at position 22 and its right half at position 50, etc.
+
+Against our intuition, this happens to be wildly inefficient, the best variant merely reaching 58.8 bits/matrix, which is worse than all attempts thus far.
+
+\section{Conclusion, TL;DR}
+
+All in all, we devised an algorithm which impractically produces the theoretical minimum compressed size of 15.23 bits/matrix, hoping to also get close to its performance by more general means. Unfortunately, we were not able to significantly improve the given Exp-Golomb encoding (61.15 bits/matrix), our best attempt only being able to reduce it to 55.56 bits/matrix.
+
+\end{document}
